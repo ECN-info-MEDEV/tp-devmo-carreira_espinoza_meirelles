@@ -15,19 +15,18 @@
  */
 package com.example.cupcake.ui
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,6 +39,16 @@ import androidx.compose.ui.unit.dp
 import com.example.cupcake.R
 import com.example.cupcake.data.DataSource
 import com.example.cupcake.ui.theme.CupcakeTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
+
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 /**
  * Composable that allows the user to select the desired cupcake quantity and expects
@@ -48,8 +57,8 @@ import com.example.cupcake.ui.theme.CupcakeTheme
  */
 @Composable
 fun StartOrderScreen(
-    quantityOptions: List<Pair<Int, Int>>,
-    onNextButtonClicked: (Int) -> Unit,
+    names: List<String>,
+    onNextButtonClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -61,65 +70,128 @@ fun StartOrderScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
         ) {
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
-            Image(
-                painter = painterResource(R.drawable.cupcake),
-                contentDescription = null,
-                modifier = Modifier.width(300.dp)
-            )
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
-            Text(
-                text = stringResource(R.string.order_cupcakes),
-                style = MaterialTheme.typography.headlineSmall
-            )
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
-        }
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(
-                dimensionResource(id = R.dimen.padding_medium)
-            )
-        ) {
-            quantityOptions.forEach { item ->
-                SelectQuantityButton(
-                    labelResourceId = item.first,
-                    onClick = { onNextButtonClicked(item.second) },
-                    modifier = Modifier.fillMaxWidth(),
-                )
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+            ) {
+                Button(
+                    onClick = { },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 4.dp)
+                ) {
+                    Text(stringResource(R.string.nouveau))
+                }
+                Button(
+                    onClick = { },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF4CAF50),
+                        contentColor = Color.Black
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 4.dp)
+                ) {
+                    Text(stringResource(R.string.bénéficiaire))
+                }
+                Button(
+                    onClick = { },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 4.dp)
+                ) {
+                    Text(stringResource(R.string.historique))
+                }
+
             }
         }
-    }
-}
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .border(1.dp, Color.Black, shape = RoundedCornerShape(15.dp))
+                    .padding(8.dp)
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
 
-/**
- * Customizable button composable that displays the [labelResourceId]
- * and triggers [onClick] lambda when this composable is clicked
- */
-@Composable
-fun SelectQuantityButton(
-    @StringRes labelResourceId: Int,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Button(
-        onClick = onClick,
-        modifier = modifier.widthIn(min = 250.dp)
-    ) {
-        Text(stringResource(labelResourceId))
-    }
-}
+                    for (i in names.indices step 3) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                        ) {
+                            for (j in 0..2) {
+                                if (i + j < names.size) {
+                                    val item = names[i + j]
+                                    Button(
+                                        onClick = { onNextButtonClicked(item) },
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(horizontal = 4.dp)
+                                    ) {
+                                        Text(item)
+                                    }
+                                } else {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                }
+                            }
+                        }
+                        if (i==0){
+                            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_big)))
+                        }
 
-@Preview
-@Composable
-fun StartOrderPreview() {
-    CupcakeTheme {
-        StartOrderScreen(
-            quantityOptions = DataSource.quantityOptions,
-            onNextButtonClicked = {},
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(dimensionResource(R.dimen.padding_medium))
+                    }
+                }
+            }
+
+        }
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_big)))
+        val searchText = remember { mutableStateOf("") }
+        OutlinedTextField(
+            value = searchText.value,
+            onValueChange = { searchText.value = it },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Rechercher...") }
         )
+        Divider(modifier = Modifier.padding(vertical = 8.dp))
+        Text(
+            text = "A",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
+        )
+        Text(
+            text = "Association AB",
+            modifier = Modifier.padding(start = 16.dp)
+        )
+        Text(
+            text = "Association XY",
+            modifier = Modifier.padding(start = 16.dp)
+        )
+        Text(
+            text = "M",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(start = 16.dp, top = 32.dp, bottom = 8.dp)
+        )
+        Text(
+            text = "Magasin AB",
+            modifier = Modifier.padding(start = 16.dp)
+        )
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.falando),
+                contentDescription = "Descrição da imagem"
+            )
+        }
     }
 }
+
+

@@ -14,8 +14,21 @@
      limitations under the License.
 -->
 <resources>
-    <string name="app_name">Cupcake</string>
     <string name="order_cupcakes">Order Cupcakes</string>
+    <string name="personne1">Jean</string>
+    <string name="personne2">Lisa</string>
+    <string name="personne3">Marie</string>
+    <string name="personne4">Hugo</string>
+    <string name="personne5">Bob</string>
+    <string name="app_name">devmotp</string>
+    <string name="bank">BANK</string>
+    <string name="nouveau">NOUVEAU</string>
+    <string name="bénéficiaire">BÉNÉFICIAIRE</string>
+    <string name="historique">HISTORIQUE</string>
+    <string name="virements">VIREMENTS</string>
+    <string name="cinquante">50€</string>
+    <string name="cent">100€</string>
+    <string name="deux_cents">200€</string>
     <string name="one_cupcake">One Cupcake</string>
     <string name="six_cupcakes">Six Cupcakes</string>
     <string name="twelve_cupcakes">Twelve Cupcakes</string>
