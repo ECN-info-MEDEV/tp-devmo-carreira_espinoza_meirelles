@@ -15,31 +15,39 @@
  */
 package com.example.cupcake.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.cupcake.R
 import com.example.cupcake.data.OrderUiState
-import com.example.cupcake.ui.theme.CupcakeTheme
-
+import android.speech.tts.TextToSpeech
+import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.unit.sp
+import java.util.*
 /**
  * This composable expects [orderUiState] that represents the order state, [onCancelButtonClicked]
  * lambda that triggers canceling the order and passes the final order to [onSendButtonClicked]
@@ -51,26 +59,47 @@ fun OrderSummaryScreen(
     onSendButtonClicked: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val resources = LocalContext.current.resources
+
+    val context = LocalContext.current
+    lateinit var textToSpeech:TextToSpeech
+
+    textToSpeech = TextToSpeech(context) { status ->
+        if (status == TextToSpeech.SUCCESS) {
+            val result = textToSpeech.setLanguage(Locale.FRENCH)
+        }
+    }
+
 
 
     //Load and format a string resource with the parameters.
     val orderSummary = stringResource(
-        R.string.order_details,
+        R.string.transaction_details,
         orderUiState.name,
         orderUiState.valeur,
         orderUiState.date,
+        orderUiState.motif
     )
     val newOrder = stringResource(R.string.new_cupcake_order)
-    //Create a list of order summary to display
-    val items = listOf(
-        // Summary line 1: display selected quantity
-        Pair(stringResource(R.string.quantity), orderUiState.name),
-        // Summary line 2: display selected flavor
-        Pair(stringResource(R.string.flavor), orderUiState.valeur),
-        // Summary line 3: display selected pickup date
-        Pair(stringResource(R.string.pickup_date), orderUiState.date)
-    )
+
+    val textToRead = buildString {
+        append(stringResource(R.string.direcione))
+        append(" ")
+        append(orderUiState.name)
+        append(". ")
+        append(stringResource(R.string.valeur))
+        append(" ")
+        append(orderUiState.valeur)
+        append(". ")
+        append(stringResource(R.string.pickup_date))
+        append(" ")
+        append(orderUiState.date)
+        append(". ")
+        append(stringResource(R.string.motif))
+        append(" ")
+        append(orderUiState.motif)
+        append(".")
+    }
+
 
     Column(
         modifier = modifier,
@@ -80,17 +109,137 @@ fun OrderSummaryScreen(
             modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
         ) {
-            items.forEach { item ->
-                Text(item.first.uppercase())
-                Text(text = item.second, fontWeight = FontWeight.Bold)
-                Divider(thickness = dimensionResource(R.dimen.thickness_divider))
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row {
+                    Box(modifier = Modifier
+                        .weight(1f)
+                        .drawWithContent {
+                            drawContent()
+                            drawLine(
+                                Color.Black,
+                                start = Offset(size.width - 1, 0f),
+                                end = Offset(size.width - 1, size.height),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                            drawLine(
+                                Color.Black,
+                                start = Offset(0f, size.height - 1),
+                                end = Offset(size.width, size.height - 1),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                        }
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text(text = stringResource(R.string.valeur).uppercase(), fontWeight = FontWeight.Bold, fontSize = 25.sp )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(text = orderUiState.valeur, fontSize = 22.sp )
+                        }
+                    }
+                    Box(modifier = Modifier.weight(1f)
+                        .drawWithContent {
+                            drawContent()
+                            drawLine(
+                                Color.Black,
+                                start = Offset(0f, 0f),
+                                end = Offset(0f, size.height),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                            drawLine(
+                                Color.Black,
+                                start = Offset(0f, size.height - 1),
+                                end = Offset(size.width, size.height - 1),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                        }
+
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text(text = stringResource(R.string.direcione).uppercase(), fontWeight = FontWeight.Bold, fontSize = 25.sp )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(text = orderUiState.name, fontSize = 22.sp )
+                        }
+                    }
+                }
+                Row {
+                    Box(modifier = Modifier.weight(1f)
+                        .drawWithContent {
+                            drawContent()
+                            drawLine(
+                                Color.Black,
+                                start = Offset(size.width - 1, 0f),
+                                end = Offset(size.width - 1, size.height),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                            drawLine(
+                                Color.Black,
+                                start = Offset(0f, 0f),
+                                end = Offset(size.width, 0f),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                        }
+
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp) ) {
+                            Text(text = stringResource(R.string.pickup_date).uppercase(), fontWeight = FontWeight.Bold, fontSize = 25.sp )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(text = orderUiState.date, fontSize = 22.sp )
+                        }
+                    }
+                    Box(modifier = Modifier.weight(1f)
+                        .drawWithContent {
+                            drawContent()
+                            drawLine(
+                                Color.Black,
+                                start = Offset(0f, 0f),
+                                end = Offset(0f, size.height),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                            drawLine(
+                                Color.Black,
+                                start = Offset(0f, 0f),
+                                end = Offset(size.width, 0f),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                        }
+
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text(
+                                text = stringResource(R.string.motif).uppercase(),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 25.sp
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(text = orderUiState.motif, fontSize = 22.sp )
+                        }
+                    }
+                }
             }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.voirplus),
+                    contentDescription = "",
+                    modifier = Modifier.size(width = 100.dp, height = 100.dp)
+                )
+                IconButton(
+                    onClick = {
+                        textToSpeech.speak(textToRead, TextToSpeech.QUEUE_FLUSH, null, null) },
+                    modifier = Modifier
+                        .size(100.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.falando),
+                        contentDescription = ""
+                    )
+                }
+            }
+
+
+
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
-            Text(
-                text = orderUiState.name,
-                modifier = modifier,
-                style = MaterialTheme.typography.headlineSmall
-            )
         }
         Row(
             modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
@@ -106,17 +255,5 @@ fun OrderSummaryScreen(
                 }
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun OrderSummaryPreview() {
-    CupcakeTheme {
-        OrderSummaryScreen(
-            orderUiState = OrderUiState("Test", "Test", "Test", "$300.00"),
-            onSendButtonClicked = { subject: String, summary: String -> },
-            modifier = Modifier.fillMaxHeight()
-        )
     }
 }
